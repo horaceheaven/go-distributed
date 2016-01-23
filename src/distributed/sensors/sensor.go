@@ -34,6 +34,16 @@ func main() {
 	defer ch.Close()
 
 	dataQueue := qutils.GetQueue(*name, ch)
+	sensorQueue := qutils.GetQueue(qutils.SensorListQueue, ch)
+
+	msg := amqp.Publishing{Body: []byte(*name)}
+
+	ch.Publish(
+		"",
+		sensorQueue.Name,
+		false,
+		false,
+		msg)
 
 	dur, _ := time.ParseDuration(strconv.Itoa(1000 / int(*freq)) + "ms")
 
@@ -44,6 +54,7 @@ func main() {
 
 	for range signal {
 		calcValue()
+
 		reading := dto.SensorMessage{
 			Name: *name,
 			Value: value,
