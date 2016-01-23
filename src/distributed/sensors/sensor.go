@@ -9,7 +9,11 @@ import (
 	"distributed/dto"
 	"bytes"
 	"encoding/gob"
+	"distributed/qutils"
+	"github.com/streadway/amqp"
 )
+
+var url = "amqp://guest:guest@localhost:5672"
 
 var name = flag.String("name", "sensor", "name of the sensor")
 var freq = flag.Uint("freq", 5, "update frequency in cycles/sec")
@@ -24,6 +28,12 @@ var nom = (*max - *min) / 2 + *min
 
 func main() {
 	flag.Parse()
+
+	conn, ch := qutils.GetChannel(url)
+	defer conn.Close()
+	defer ch.Close()
+
+	dataQueue := qutils.GetQueue(*name, ch)
 
 	dur, _ := time.ParseDuration(strconv.Itoa(1000 / int(*freq)) + "ms")
 
@@ -42,6 +52,17 @@ func main() {
 
 		buf.Reset()
 		enc.Encode(reading)
+
+		msg := amqp.Publishing{
+			Body: buf.Bytes(),
+		}
+
+		ch.Publish(
+			"", 			// exchange name
+			dataQueue.Name, // key string
+			false, 			// mandatory bool
+			false, 			// immediate bool
+			msg) 			// msg amqp.Publish
 
 		log.Printf("Reading sent. Value: %v\n", value)
 	}
