@@ -8,10 +8,23 @@ import (
 const SensorListQueue = "SensorList"
 
 func GetChannel(url string) (*amqp.Connection, *amqp.Channel) {
+	log.Print("About to establish connection to queueing system")
 	conn, err := amqp.Dial(url)
-	failOnError(err, "Failed to establish connection to message broker")
+
+	if err != nil {
+		failOnError(err, "Failed to establish connection to message broker")
+	} else {
+		log.Printf("Established connection to queue at %s", conn.LocalAddr().String())
+	}
+
 	ch, err := conn.Channel()
-	failOnError(err, "Failed to get channel for connection")
+
+	if err != nil {
+		failOnError(err, "Failed to get channel for connection")
+	} else {
+		log.Printf("Established connection to queue channel")
+	}
+
 	return conn, ch
 }
 
@@ -23,7 +36,12 @@ func GetQueue(name string, ch *amqp.Channel) *amqp.Queue {
 		false, // exclusive bool,
 		false, // noWait bool,
 		nil)   // args amqp.Table
-	failOnError(err, "Failed to declare queue")
+
+	if err != nil {
+		failOnError(err, "Failed to declare queue")
+	} else {
+		log.Printf("Declared [%s] queue successfully", q.Name)
+	}
 
 	return &q
 }
