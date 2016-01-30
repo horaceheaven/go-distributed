@@ -1,8 +1,9 @@
 package qutils
+
 import (
-	"log"
 	"fmt"
 	"github.com/streadway/amqp"
+	"log"
 )
 
 const SensorListQueue = "SensorList"

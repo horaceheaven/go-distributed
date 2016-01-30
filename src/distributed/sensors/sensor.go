@@ -1,16 +1,16 @@
 package main
 
 import (
-	"flag"
-	"time"
-	"strconv"
-	"math/rand"
-	"log"
-	"distributed/dto"
 	"bytes"
-	"encoding/gob"
+	"distributed/dto"
 	"distributed/qutils"
+	"encoding/gob"
+	"flag"
 	"github.com/streadway/amqp"
+	"log"
+	"math/rand"
+	"strconv"
+	"time"
 )
 
 var url = "amqp://guest:guest@localhost:5672"
@@ -23,8 +23,8 @@ var stepSize = flag.Float64("step", 0.1, "maxium allowable change per measuremen
 
 var r = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-var value = r.Float64() * (*max - *min) + *min
-var nom = (*max - *min) / 2 + *min
+var value = r.Float64()*(*max-*min) + *min
+var nom = (*max-*min)/2 + *min
 
 func main() {
 	flag.Parse()
@@ -38,13 +38,13 @@ func main() {
 	msg := amqp.Publishing{Body: []byte(*name)}
 
 	ch.Publish(
-		"amq.fanout", 	// exchange string
-		"", 			// key string
-		false, 			// mandatory bool
-		false, 			// immediate bool
-		msg) 			// msg amqp.Publishing
+		"amq.fanout", // exchange string
+		"",           // key string
+		false,        // mandatory bool
+		false,        // immediate bool
+		msg)          // msg amqp.Publishing
 
-	dur, _ := time.ParseDuration(strconv.Itoa(1000 / int(*freq)) + "ms")
+	dur, _ := time.ParseDuration(strconv.Itoa(1000/int(*freq)) + "ms")
 
 	signal := time.Tick(dur)
 
@@ -55,8 +55,8 @@ func main() {
 		calcValue()
 
 		reading := dto.SensorMessage{
-			Name: *name,
-			Value: value,
+			Name:      *name,
+			Value:     value,
 			Timestamp: time.Now(),
 		}
 
@@ -68,11 +68,11 @@ func main() {
 		}
 
 		ch.Publish(
-			"", 			// exchange name
+			"",             // exchange name
 			dataQueue.Name, // key string
-			false, 			// mandatory bool
-			false, 			// immediate bool
-			msg) 			// msg amqp.Publish
+			false,          // mandatory bool
+			false,          // immediate bool
+			msg)            // msg amqp.Publish
 
 		log.Printf("Reading sent. Value: %v\n", value)
 	}
@@ -85,9 +85,9 @@ func calcValue() {
 		maxStep = *stepSize
 		minStep = -1 * *stepSize * (value - *min) / (nom - *min)
 	} else {
-		maxStep = *stepSize * (*max -  value) / (*max - nom)
+		maxStep = *stepSize * (*max - value) / (*max - nom)
 		minStep = -1 * *stepSize
 	}
 
-	value += r.Float64() * (maxStep - minStep) + minStep
+	value += r.Float64()*(maxStep-minStep) + minStep
 }
