@@ -61,6 +61,7 @@ func main() {
 		}
 
 		buf.Reset()
+		enc = gob.NewEncoder(buf)
 		enc.Encode(reading)
 
 		msg := amqp.Publishing{
