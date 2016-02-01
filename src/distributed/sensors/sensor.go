@@ -6,11 +6,12 @@ import (
 	"distributed/qutils"
 	"encoding/gob"
 	"flag"
-	"github.com/streadway/amqp"
 	"log"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/streadway/amqp"
 )
 
 var url = "amqp://guest:guest@localhost:5672"
