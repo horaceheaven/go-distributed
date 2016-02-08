@@ -48,7 +48,7 @@ func (ql *QueueListener) DiscoverSensors() {
 }
 
 func (ql *QueueListener) ListenForNewSource() {
-	q := qutils.GetQueue("", ql.ch)
+	q := qutils.GetQueue("", ql.ch, true)
 	ql.ch.QueueBind(
 		q.Name,       // name string
 		"",           // key string
@@ -72,6 +72,7 @@ func (ql *QueueListener) ListenForNewSource() {
 	for msg := range msgs {
 
 		fmt.Println("new source discovered")
+		ql.ea.PublishEvent("DataSourceDiscovered", string(msg.Body))
 
 		sourceChan, _ := ql.ch.Consume(
 			string(msg.Body),
