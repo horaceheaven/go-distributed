@@ -6,11 +6,12 @@ import (
 	"distributed/qutils"
 	"encoding/gob"
 	"flag"
-	"github.com/streadway/amqp"
 	"log"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/streadway/amqp"
 )
 
 var url = "amqp://guest:guest@localhost:5672"
@@ -33,16 +34,20 @@ func main() {
 	defer conn.Close()
 	defer ch.Close()
 
-	dataQueue := qutils.GetQueue(*name, ch)
+	dataQueue := qutils.GetQueue(*name, ch, false)
 
-	msg := amqp.Publishing{Body: []byte(*name)}
+	publishQueueName(ch)
 
-	ch.Publish(
-		"amq.fanout", // exchange string
-		"",           // key string
-		false,        // mandatory bool
-		false,        // immediate bool
-		msg)          // msg amqp.Publishing
+	discoveryQueue := qutils.GetQueue("", ch, true)
+
+	ch.QueueBind(
+		discoveryQueue.Name,
+		"",
+		qutils.SensorDiscoveryExchange,
+		false,
+		nil)
+
+	go listenForDiscoveryRequests(discoveryQueue.Name, ch)
 
 	dur, _ := time.ParseDuration(strconv.Itoa(1000/int(*freq)) + "ms")
 
@@ -77,6 +82,32 @@ func main() {
 
 		log.Printf("Reading sent. Value: %v\n", value)
 	}
+}
+
+func listenForDiscoveryRequests(name string, ch *amqp.Channel) {
+	msgs, _ := ch.Consume(
+		name,
+		"",
+		true,
+		false,
+		false,
+		false,
+		nil)
+
+	for range msgs {
+		publishQueueName(ch)
+	}
+}
+
+func publishQueueName(ch *amqp.Channel) {
+	msg := amqp.Publishing{Body: []byte(*name)}
+
+	ch.Publish(
+		"amq.fanout", // exchange string
+		"",           // key string
+		false,        // mandatory bool
+		false,        // immediate bool
+		msg)          // msg amqp.Publishing
 }
 
 func calcValue() {

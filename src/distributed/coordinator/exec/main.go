@@ -5,7 +5,6 @@ import (
 	"fmt"
 )
 
-
 func main() {
 	ql := coordinator.NewQueueListener()
 	go ql.ListenForNewSource()

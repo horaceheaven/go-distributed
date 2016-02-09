@@ -8,6 +8,8 @@ import (
 
 const SensorListQueue = "SensorList"
 
+const SensorDiscoveryExchange = "SensoryDiscovery"
+
 func GetChannel(url string) (*amqp.Connection, *amqp.Channel) {
 	log.Print("About to establish connection to queueing system")
 	conn, err := amqp.Dial(url)
@@ -29,11 +31,11 @@ func GetChannel(url string) (*amqp.Connection, *amqp.Channel) {
 	return conn, ch
 }
 
-func GetQueue(name string, ch *amqp.Channel) *amqp.Queue {
+func GetQueue(name string, ch *amqp.Channel, autoDelete bool) *amqp.Queue {
 	q, err := ch.QueueDeclare(
 		name,  // name string,
 		false, // durable bool,
-		false, // autoDelete bool
+		autoDelete, // autoDelete bool
 		false, // exclusive bool,
 		false, // noWait bool,
 		nil)   // args amqp.Table
