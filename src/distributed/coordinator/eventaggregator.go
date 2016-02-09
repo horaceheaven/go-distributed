@@ -2,7 +2,7 @@ package coordinator
 import "time"
 
 type EventRaiser interface {
-	Addlistener(eventName string, f func(interface{}))
+	AddListener(eventName string, f func(interface{}))
 }
 
 type EventAggregator struct {
