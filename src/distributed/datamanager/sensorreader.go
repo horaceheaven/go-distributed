@@ -3,6 +3,7 @@ package datamanager
 import (
 	"distributed/dto"
 	"errors"
+	"log"
 )
 
 var sensors map[string]int
@@ -25,6 +26,12 @@ func SaveReading(reading *dto.SensorMessage) error {
   	`
 
 	_, err := db.Exec(q, reading.Value, sensors[reading.Name], reading.Timestamp)
+
+	if err != nil {
+		log.Println("An error occured while inserting sensor data into the database: %s", err);
+	} else {
+		log.Println("Inserted sensor data successfully")
+	}
 
 	return err
 }
