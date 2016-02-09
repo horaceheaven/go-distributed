@@ -9,6 +9,7 @@ import (
 const SensorListQueue = "SensorList"
 
 const SensorDiscoveryExchange = "SensoryDiscovery"
+const PersistReadingsQueue = "PersistReading"
 
 func GetChannel(url string) (*amqp.Connection, *amqp.Channel) {
 	log.Print("About to establish connection to queueing system")
