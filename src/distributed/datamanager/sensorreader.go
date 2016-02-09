@@ -8,7 +8,7 @@ import (
 
 var sensors map[string]int
 
-func SaveReading(reading *dto.SensorMessage) error {
+func SaveReadings(reading *dto.SensorMessage) error {
 	if sensors[reading.Name] == 0 {
 		getSensors()
 	}

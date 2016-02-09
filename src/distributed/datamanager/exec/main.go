@@ -34,7 +34,7 @@ func main() {
 		sd := &dto.SensorMessage{}
 		dec.Decode(sd)
 
-		err := datamanager.SaveReading(sd)
+		err := datamanager.SaveReadings(sd)
 
 		if err != nil {
 			log.Printf("Failed to save reading from sensor %v. Error: %s",
