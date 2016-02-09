@@ -5,9 +5,11 @@ import (
 	"distributed/dto"
 	"distributed/qutils"
 	"encoding/gob"
-	"fmt"
 	"github.com/streadway/amqp"
+	"github.com/Sirupsen/logrus"
 )
+
+var log = logrus.New()
 
 const url = "amqp:guest:guest@localhost:5672"
 
@@ -67,11 +69,11 @@ func (ql *QueueListener) ListenForNewSource() {
 
 	ql.DiscoverSensors()
 
-	fmt.Println("listening for new sources")
+	log.Info("listening for new sources")
 
 	for msg := range msgs {
 
-		fmt.Println("new source discovered")
+		log.Info("new source discovered")
 		ql.ea.PublishEvent("DataSourceDiscovered", string(msg.Body))
 
 		sourceChan, _ := ql.ch.Consume(
@@ -98,7 +100,7 @@ func (ql *QueueListener) AddListener(msgs <-chan amqp.Delivery) {
 		sd := new(dto.SensorMessage)
 		d.Decode(sd)
 
-		fmt.Printf("Received message: %v\n", sd)
+		log.Info("Received message: ", sd)
 
 		ed := EventData{
 			Name: sd.Name,

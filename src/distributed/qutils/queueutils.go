@@ -46,7 +46,7 @@ func GetQueue(name string, ch *amqp.Channel, autoDelete bool) *amqp.Queue {
 	if err != nil {
 		failOnError(err, "Failed to declare queue")
 	} else {
-		log.Info("Declared", q.Name,"queue successfully")
+		log.Info("Declared ", q.Name," queue successfully")
 	}
 
 	return &q
