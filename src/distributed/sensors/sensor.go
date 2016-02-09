@@ -6,14 +6,15 @@ import (
 	"distributed/qutils"
 	"encoding/gob"
 	"flag"
-	"log"
 	"math/rand"
 	"strconv"
 	"time"
 
 	"github.com/streadway/amqp"
+	"github.com/Sirupsen/logrus"
 )
 
+var log = logrus.New()
 var url = "amqp://guest:guest@localhost:5672"
 
 var name = flag.String("name", "sensor", "name of the sensor")
@@ -80,7 +81,9 @@ func main() {
 			false,          // immediate bool
 			msg)            // msg amqp.Publish
 
-		log.Printf("Reading sent. Value: %v\n", value)
+		log.WithFields(logrus.Fields{
+			"value": value,
+		}).Info("Reading sent")
 	}
 }
 

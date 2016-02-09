@@ -3,8 +3,10 @@ package qutils
 import (
 	"fmt"
 	"github.com/streadway/amqp"
-	"log"
+	"github.com/Sirupsen/logrus"
 )
+
+var log = logrus.New()
 
 const SensorListQueue = "SensorList"
 
@@ -12,13 +14,13 @@ const SensorDiscoveryExchange = "SensoryDiscovery"
 const PersistReadingsQueue = "PersistReading"
 
 func GetChannel(url string) (*amqp.Connection, *amqp.Channel) {
-	log.Print("About to establish connection to queueing system")
+	log.Info("About to establish connection to queueing system")
 	conn, err := amqp.Dial(url)
 
 	if err != nil {
 		failOnError(err, "Failed to establish connection to message broker")
 	} else {
-		log.Printf("Established connection to queue at %s", conn.LocalAddr().String())
+		log.Info("Established connection to queue at ", conn.LocalAddr().String())
 	}
 
 	ch, err := conn.Channel()
@@ -26,7 +28,7 @@ func GetChannel(url string) (*amqp.Connection, *amqp.Channel) {
 	if err != nil {
 		failOnError(err, "Failed to get channel for connection")
 	} else {
-		log.Printf("Established connection to queue channel")
+		log.Info("Established connection to queue channel")
 	}
 
 	return conn, ch
@@ -44,7 +46,7 @@ func GetQueue(name string, ch *amqp.Channel, autoDelete bool) *amqp.Queue {
 	if err != nil {
 		failOnError(err, "Failed to declare queue")
 	} else {
-		log.Printf("Declared [%s] queue successfully", q.Name)
+		log.Info("Declared", q.Name,"queue successfully")
 	}
 
 	return &q
@@ -52,7 +54,7 @@ func GetQueue(name string, ch *amqp.Channel, autoDelete bool) *amqp.Queue {
 
 func failOnError(err error, msg string) {
 	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
+		log.Error(msg, err)
 		panic(fmt.Sprintf("%s: %s", msg, err))
 	}
 }
