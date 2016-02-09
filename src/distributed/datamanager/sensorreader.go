@@ -5,38 +5,37 @@ import (
 	"errors"
 )
 
-
 var sensors map[string]int
 
-func SaveReadings(reading *dto.SensorMessage) error {
+func SaveReading(reading *dto.SensorMessage) error {
 	if sensors[reading.Name] == 0 {
 		getSensors()
 	}
 
 	if sensors[reading.Name] == 0 {
 		return errors.New("Unable to find sensor for name '" +
-			reading.Name + "'")
+		reading.Name + "'")
 	}
 
 	q := `
-		INSERT INTO sensor_reading
-			(value, sensor_id, token_on)
-		VALUES
-			($1, $2, $3)
-	`
+    INSERT INTO sensor_reading
+      (value, sensor_id, taken_on)
+    VALUES
+      ($1, $2, $3)
+  	`
 
 	_, err := db.Exec(q, reading.Value, sensors[reading.Name], reading.Timestamp)
 
 	return err
- }
+}
+
 
 func getSensors() {
 	sensors = make(map[string]int)
-
 	q := `
-		SELECT id, name
-		FROM sensor
-	`
+    SELECT id, name
+    FROM sensor
+  	`
 
 	rows, _ := db.Query(q)
 
