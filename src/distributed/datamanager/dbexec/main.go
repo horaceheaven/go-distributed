@@ -6,8 +6,10 @@ import (
 	"distributed/dto"
 	"distributed/qutils"
 	"encoding/gob"
-	"log"
+	"github.com/Sirupsen/logrus"
 )
+
+var log = logrus.New()
 
 const url = "amqp://guest:guest@localhost:5672"
 
@@ -26,7 +28,7 @@ func main() {
 		nil)   //args amqp.Table)
 
 	if err != nil {
-		log.Fatalln("Failed to get access to messages")
+		log.Warn("Failed to get access to messages")
 	}
 	for msg := range msgs {
 		buf := bytes.NewReader(msg.Body)
@@ -37,8 +39,7 @@ func main() {
 		err := datamanager.SaveReading(sd)
 
 		if err != nil {
-			log.Printf("Failed to save reading from sensor %v. Error: %s",
-				sd.Name, err.Error())
+			log.Error("Failed to save reading from sensor", sd.Name,". Error: ", err.Error())
 		} else {
 			msg.Ack(false)
 		}
